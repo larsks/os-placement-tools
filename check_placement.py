@@ -44,6 +44,26 @@ class Placement(object):
             self.placement_url +
             '/resource_providers/{}/allocations'.format(uuid))
         return res.json()
+    
+    def set_allocation(self, instance_uuid, allocation):
+        data = {
+            'allocations': [
+                {
+                    'resource_provider': {
+                        'uuid': allocation['provider']['uuid'],
+                    },
+
+                    'resources': allocation['allocation']['resources'],
+                }
+            ]
+        }
+
+        res = self.session.put(
+            self.placement_url +
+            '/allocations/{}'.format(instance_uuid),
+            json=data)
+
+        res.raise_for_status()
 
 
 def parse_args():
@@ -51,6 +71,8 @@ def parse_args():
 
     p.add_argument('--fix', action='store_true')
     p.add_argument('--dry-run', '-n', action='store_true')
+    p.add_argument('--limit', '-l', action='append', default=[])
+    p.add_argument('--output-json', '-o')
 
     g = p.add_argument_group('Logging')
     g.add_argument('--debug', action='store_const',
@@ -90,6 +112,9 @@ def main():
 
     LOG.info('auditing allocations')
     for instance_uuid, allocations in tally.items():
+        if args.limit and instance_uuid not in args.limit:
+            continue
+
         if len(allocations) > 1:
             LOG.info('{} has multiple allocations'.format(instance_uuid))
             instance = cloud_api.get_server(instance_uuid, all_projects=True)
@@ -118,14 +143,24 @@ def main():
                     'allocation': allocation,
                 })
 
-    with open('allocations.json', 'w') as fd:
-        json.dump(multiple, fd, indent=2)
+    if args.output_json:
+        with open(args.output_json, 'w') as fd:
+            json.dump(multiple, fd, indent=2)
 
     for instance_uuid, info in multiple.items():
         print(instance_uuid)
         for allocation in info['allocations']:
             mark = '*' if allocation['active'] else '-'
             print('{} {}'.format(mark, allocation['provider']['name']))
+
+    if args.fix:
+        for instance_uuid, info in multiple.items():
+            for allocation in info['allocations']:
+                if allocation['active']:
+                    LOG.warning(
+                        'fixing allocation for {}'.format(instance_uuid))
+                    placement.set_allocation(instance_uuid, allocation)
+                    break
 
 
 if __name__ == '__main__':
