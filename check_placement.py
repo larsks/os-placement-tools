@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import argparse
+import json
 import logging
 import os_client_config
 import shade
@@ -77,10 +78,12 @@ def main():
 
             tally[instance_uuid][provider['uuid']] = allocation
 
+    multiple = {}
+
     LOG.info('auditing allocations')
     for instance_uuid, allocations in tally.items():
         if len(allocations) > 1:
-            print('{} has multiple allocations'.format(instance_uuid))
+            LOG.info('{} has multiple allocations'.format(instance_uuid))
             instance = cloud_api.get_server(instance_uuid, all_projects=True)
             if instance:
                 current_hypervisor = instance.get(
@@ -88,15 +91,27 @@ def main():
             else:
                 current_hypervisor = None
 
+            multiple[instance_uuid] = {
+                'uuid': instance_uuid,
+                'active': current_hypervisor,
+                'allocations': [],
+            }
+
             for provider_uuid, allocation in allocations.items():
                 provider = providers[provider_uuid]
                 if provider['name'] == current_hypervisor:
-                    mark = '*'
+                    active = True
                 else:
-                    mark = '-'
-                print('{} {} ({})'.format(mark,
-                                          provider['name'],
-                                          provider_uuid))
+                    active = False
+
+                multiple[instance_uuid]['allocations'].append({
+                    'provider': provider,
+                    'active': active,
+                    'allocation': allocation,
+                })
+
+    with open('allocations.json', 'w') as fd:
+        json.dump(multiple, fd, indent=2)
 
 
 if __name__ == '__main__':
