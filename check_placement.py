@@ -41,7 +41,8 @@ class Placement(object):
 
     def get_resource_provider_allocations(self, uuid):
         res = self.session.get(
-            self.placement_url + '/resource_providers/{}/allocations'.format(uuid))
+            self.placement_url +
+            '/resource_providers/{}/allocations'.format(uuid))
         return res.json()
 
 
@@ -71,7 +72,8 @@ def main():
     LOG.info('getting resource allocations')
     for provider in placement.list_resource_providers():
         providers[provider['uuid']] = provider
-        allocations = placement.get_resource_provider_allocations(provider['uuid'])
+        allocations = (
+            placement.get_resource_provider_allocations(provider['uuid']))
         for instance_uuid, allocation in allocations['allocations'].items():
             if instance_uuid not in tally:
                 tally[instance_uuid] = {}
