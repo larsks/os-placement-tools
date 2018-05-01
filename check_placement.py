@@ -52,9 +52,15 @@ def parse_args():
     p.add_argument('--fix', action='store_true')
     p.add_argument('--dry-run', '-n', action='store_true')
 
+    g = p.add_argument_group('Logging')
+    g.add_argument('--debug', action='store_const',
+                   const='DEBUG', dest='loglevel')
+    g.add_argument('--verbose', '-v', action='store_const',
+                   const='INFO', dest='loglevel')
+
     cloud_config.register_argparse_arguments(p, sys.argv)
 
-    p.set_defaults(loglevel='INFO')
+    p.set_defaults(loglevel='WARNING')
     return p.parse_args()
 
 
