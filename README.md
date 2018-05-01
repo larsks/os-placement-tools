@@ -27,7 +27,7 @@ equivalent of running (if you have installed [osc-placement][]):
 
 If you pass `--fix`, you would see, after the report listing:
 
-    $ python check_placement.py --fox
+    $ python check_placement.py --fix
     [...]
     WARNING:__main__:fixing allocation for acf37e22-6333-4209-8e41-c408d9544311
     WARNING:__main__:fixing allocation for 65aaa918-a192-42d5-b292-9d9f3ae57106
