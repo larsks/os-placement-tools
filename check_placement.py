@@ -113,6 +113,12 @@ def main():
     with open('allocations.json', 'w') as fd:
         json.dump(multiple, fd, indent=2)
 
+    for instance_uuid, info in multiple.items():
+        print(instance_uuid)
+        for allocation in info['allocations']:
+            mark = '*' if allocation['active'] else '-'
+            print('{} {}'.format(mark, allocation['provider']['name']))
+
 
 if __name__ == '__main__':
     main()
