@@ -1,2 +1,3 @@
-shade
+os_client_config
 python-openstackclient
+shade
