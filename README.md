@@ -15,7 +15,7 @@ In the above list, the UUIDs are instance ids. `-` marks hypervisors
 on which the instance is *not* running, and `*` marks the hypervisor
 on which the instance is currently running.
 
-If you pass the `--fix` option, then the script will set an explicit
+If you pass the `--repair` option, then the script will set an explicit
 allocation for each instance on its active hypervisor.  This is the
 equivalent of running (if you have installed [osc-placement][]):
 
@@ -25,10 +25,10 @@ equivalent of running (if you have installed [osc-placement][]):
 
 [osc-placement]: https://docs.openstack.org/osc-placement/latest/cli/index.html
 
-If you pass `--fix`, you would see, after the report listing:
+If you pass `--repair`, you would see, after the report listing:
 
-    $ python check_placement.py --fix
+    $ python check_placement.py --repair
     [...]
-    WARNING:__main__:fixing allocation for acf37e22-6333-4209-8e41-c408d9544311
-    WARNING:__main__:fixing allocation for 65aaa918-a192-42d5-b292-9d9f3ae57106
+    WARNING:__main__:setting allocation for acf37e22-6333-4209-8e41-c408d9544311
+    WARNING:__main__:setting allocation for 65aaa918-a192-42d5-b292-9d9f3ae57106
 

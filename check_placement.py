@@ -69,16 +69,26 @@ class Placement(object):
 def parse_args():
     p = argparse.ArgumentParser()
 
-    p.add_argument('--fix', action='store_true')
-    p.add_argument('--dry-run', '-n', action='store_true')
-    p.add_argument('--limit', '-l', action='append', default=[])
-    p.add_argument('--output-json', '-o')
+    g = p.add_argument_group('Placement')
+    g.add_argument('--repair',
+                   action='store_true',
+                   help='Fix instances with multiple resource allocations')
+    g.add_argument('--limit', '-l',
+                   action='append',
+                   default=[],
+                   help='Limit audit/repair to the specified instance uuid')
+    g.add_argument('--output-json', '-o',
+                   help='Output problem allocations to the named JSON file')
 
     g = p.add_argument_group('Logging')
-    g.add_argument('--debug', action='store_const',
-                   const='DEBUG', dest='loglevel')
-    g.add_argument('--verbose', '-v', action='store_const',
-                   const='INFO', dest='loglevel')
+    g.add_argument('--debug',
+                   action='store_const',
+                   const='DEBUG',
+                   dest='loglevel')
+    g.add_argument('--verbose', '-v',
+                   action='store_const',
+                   const='INFO',
+                   dest='loglevel')
 
     cloud_config.register_argparse_arguments(p, sys.argv)
 
@@ -153,12 +163,12 @@ def main():
             mark = '*' if allocation['active'] else '-'
             print('{} {}'.format(mark, allocation['provider']['name']))
 
-    if args.fix:
+    if args.repair:
         for instance_uuid, info in multiple.items():
             for allocation in info['allocations']:
                 if allocation['active']:
                     LOG.warning(
-                        'fixing allocation for {}'.format(instance_uuid))
+                        'setting allocation for {}'.format(instance_uuid))
                     placement.set_allocation(instance_uuid, allocation)
                     break
 
